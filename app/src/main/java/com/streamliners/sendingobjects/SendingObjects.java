@@ -1,13 +1,18 @@
 package com.streamliners.sendingobjects;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.streamliners.sendingobjects.databinding.ActivitySendingObjectsBinding;
 import com.streamliners.sendingobjects.model.Student;
@@ -26,7 +31,33 @@ public class SendingObjects extends AppCompatActivity {
 
         setContentView(b.getRoot());
         setupHideErrorsForEditText();
+
+        setupActionListner();
+        
+//        Restoring Data
+        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+
+        b.nameTextField.getEditText().setText(prefs.getString(Constants.NAME, ""));
+        b.radioGroup.check(prefs.getInt(Constants.GENDER_TYPE, -1));
+        b.rollNoTextField.getEditText().setText(prefs.getString(Constants.ROLL_NO, ""));
+        b.phoneNoTextField.getEditText().setText(prefs.getString(Constants.PHONE_NO, ""));
+
     }
+
+//    Applying IME Action Send to the editor text
+    private void setupActionListner() {
+        b.phoneNoTextField.getEditText().setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId == EditorInfo.IME_ACTION_SEND){
+                    sendObject(v);
+                }
+                return false;
+            }
+        });
+
+    }
+
 
 //    Methods for hiding errors
     private void setupHideErrorsForEditText() {
@@ -150,4 +181,19 @@ public class SendingObjects extends AppCompatActivity {
         startActivity(intent);
     }
 
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //create preferences reference i.e create object of preferences
+        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+
+        //save and commit data
+        prefs.edit()
+         .putString(Constants.NAME, b.nameTextField.getEditText().getText().toString().trim())
+                .putInt(Constants.GENDER_TYPE, b.radioGroup.getCheckedRadioButtonId())
+                .putString(Constants.ROLL_NO, Objects.requireNonNull(b.rollNoTextField.getEditText()).getText().toString().trim())
+                .putString(Constants.PHONE_NO, b.phoneNoTextField.getEditText().getText().toString().trim())
+                .apply();
+    }
 }

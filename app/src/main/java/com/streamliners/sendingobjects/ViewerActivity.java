@@ -16,6 +16,7 @@ public class ViewerActivity extends AppCompatActivity {
         b = ActivityViewerBinding.inflate(getLayoutInflater());
         setContentView(b.getRoot());
         getnameintent();
+        setTitle("Object Viewing Activity");
     }
 
     /**
